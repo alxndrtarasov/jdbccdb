@@ -15,7 +15,7 @@ public interface BDWorker {
 
 	public void cleanTable(String name);
 
-	public void insert(String table, String object);
+	public void insert(String table, int id, String object);
 
 	public void update(String table, String object, String id);
 

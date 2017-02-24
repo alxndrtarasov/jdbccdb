@@ -74,28 +74,80 @@ public class PGBDWorker implements BDWorker {
 		}
 	}
 
-	public void insert(String table, String object) {
-		// TODO Auto-generated method stub
-
+	public void insert(String table, int id, String object) {
+		if (connection != null) {
+			try {
+				Statement statement = connection.createStatement();
+				statement.executeUpdate("insert into " + table + " values(" + id + "," + object + ");");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		} else {
+			System.err.println("establish connection first");
+		}
 	}
 
 	public void update(String table, String object, String id) {
-		// TODO Auto-generated method stub
-
+		if (connection != null) {
+			try {
+				Statement statement = connection.createStatement();
+				statement.execute("delete from " + table + " where id = " + id + ";");
+				statement.executeUpdate("insert into " + table + " values(" + id + "," + object + ");");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		} else {
+			System.err.println("establish connection first");
+		}
 	}
 
 	public ResultSet find(String table, String field, String value) {
-		// TODO Auto-generated method stub
+		if (connection != null) {
+			try {
+				PreparedStatement statement = connection.prepareStatement("select * from ? where ? = ?");
+				statement.setString(1, table);
+				statement.setString(2, field);
+				statement.setString(3, value);
+				return statement.executeQuery();
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		} else {
+			System.err.println("establish connection first");
+		}
 		return null;
 	}
 
 	public void deleteByFieldValue(String table, String field, String value) {
-		// TODO Auto-generated method stub
+		if (connection != null) {
+			try {
+				PreparedStatement statement = connection.prepareStatement("delete from ? where ? = ?");
+				statement.setString(1, table);
+				statement.setString(2, field);
+				statement.setString(3, value);
 
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		} else {
+			System.err.println("establish connection first");
+		}
 	}
 
 	public void deleteById(String table, String id) {
-		// TODO Auto-generated method stub
+		if (connection != null) {
+			try {
+				PreparedStatement statement = connection.prepareStatement("delete from ? where id = ?");
+				statement.setString(1, table);
+				statement.setString(2, id);
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		} else {
+			System.err.println("establish connection first");
+		}
 
 	}
 
