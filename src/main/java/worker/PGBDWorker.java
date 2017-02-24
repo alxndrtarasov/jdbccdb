@@ -10,8 +10,12 @@ import java.sql.Statement;
 public class PGBDWorker implements BDWorker {
 
 	private Connection connection;
-	private static final String defName = "obj";
+	public static final String defDbName = "postgres";
+	public static final String login = "postgres";
+	public static final String password = "1337";
+	public static final String defName = "obj";
 
+	@Override
 	public Connection connect(String dbName, String login, String password) {
 		try {
 			Class.forName("org.postgresql.Driver");
@@ -31,6 +35,7 @@ public class PGBDWorker implements BDWorker {
 		return conn;
 	}
 
+	@Override
 	public void createDatabase(String name) {
 		if (connection != null) {
 			try {
@@ -47,6 +52,7 @@ public class PGBDWorker implements BDWorker {
 
 	}
 
+	@Override
 	public void deleteDatabase(String name) {
 		if (connection != null) {
 			try {
@@ -61,6 +67,7 @@ public class PGBDWorker implements BDWorker {
 
 	}
 
+	@Override
 	public void cleanTable(String name) {
 		if (connection != null) {
 			try {
@@ -74,6 +81,7 @@ public class PGBDWorker implements BDWorker {
 		}
 	}
 
+	@Override
 	public void insert(String table, int id, String object) {
 		if (connection != null) {
 			try {
@@ -87,6 +95,7 @@ public class PGBDWorker implements BDWorker {
 		}
 	}
 
+	@Override
 	public void update(String table, String object, String id) {
 		if (connection != null) {
 			try {
@@ -101,6 +110,7 @@ public class PGBDWorker implements BDWorker {
 		}
 	}
 
+	@Override
 	public ResultSet find(String table, String field, String value) {
 		if (connection != null) {
 			try {
@@ -119,6 +129,7 @@ public class PGBDWorker implements BDWorker {
 		return null;
 	}
 
+	@Override
 	public void deleteByFieldValue(String table, String field, String value) {
 		if (connection != null) {
 			try {
@@ -135,6 +146,7 @@ public class PGBDWorker implements BDWorker {
 		}
 	}
 
+	@Override
 	public void deleteById(String table, String id) {
 		if (connection != null) {
 			try {
@@ -149,6 +161,40 @@ public class PGBDWorker implements BDWorker {
 			System.err.println("establish connection first");
 		}
 
+	}
+
+	@Override
+	public ResultSet getAllObjects() {
+		if (connection != null) {
+			try {
+				Statement statement = connection.createStatement();
+				return statement.executeQuery("select * from " + defName + ";");
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			System.err.println("establish connection first");
+		}
+		return null;
+	}
+
+	@Override
+	public ResultSet find(String table, int id) {
+		if (connection != null) {
+			try {
+				PreparedStatement statement = connection
+						.prepareStatement("select * from " + defName + " where id = ?;");
+				statement.setLong(1, id);
+				return statement.executeQuery();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			System.err.println("establish connection first");
+		}
+		return null;
 	}
 
 }

@@ -24,4 +24,8 @@ public interface BDWorker {
 	public void deleteByFieldValue(String table, String field, String value);
 
 	public void deleteById(String table, String id);
+
+	public ResultSet find(String table, int id);
+
+	public ResultSet getAllObjects();
 }
