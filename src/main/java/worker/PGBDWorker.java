@@ -8,7 +8,8 @@ import java.sql.SQLException;
 
 public class PGBDWorker implements BDWorker {
 
-	Connection connection;
+	private Connection connection;
+	private static final String defName = "films";
 
 	public Connection connect(String dbName, String login, String password) {
 		try {
@@ -39,7 +40,9 @@ public class PGBDWorker implements BDWorker {
 				e.printStackTrace();
 			}
 		}
-
+		else {
+			System.err.println("establish connection first");
+		}
 	}
 
 	public void deleteDatabase(String name) {
@@ -48,11 +51,12 @@ public class PGBDWorker implements BDWorker {
 				PreparedStatement statement = connection.prepareStatement("drop database " + name + ";");
 				statement.executeUpdate();
 			} catch (SQLException e) {
-				System.err.println("establish connection first");
 				e.printStackTrace();
 			}
 		}
-
+		else {
+			System.err.println("establish connection first");
+		}
 	}
 
 	public void cleanTable(String name) {
@@ -61,11 +65,14 @@ public class PGBDWorker implements BDWorker {
 				PreparedStatement statement = connection.prepareStatement("delete table " + name + ";");
 				statement.executeUpdate();
 			} catch (SQLException e) {
-				System.err.println("establish connection first");
 				e.printStackTrace();
 			}
 		}
-	}
+		else {
+				System.err.println("establish connection first");
+			}
+		}
+	
 
 	public void insert(String table, String object) {
 		// TODO Auto-generated method stub
@@ -78,17 +85,55 @@ public class PGBDWorker implements BDWorker {
 	}
 
 	public ResultSet find(String table, String field, String value) {
-		// TODO Auto-generated method stub
+		if (connection != null) {
+			try {
+				PreparedStatement statement = connection.prepareStatement("select * from ? where ? = ?");
+				statement.setString(1, table);
+				statement.setString(2, field);
+				statement.setString(3, value);
+				return statement.executeQuery();
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+			else {
+				System.err.println("establish connection first");
+			}
 		return null;
 	}
-
+	
 	public void deleteByFieldValue(String table, String field, String value) {
-		// TODO Auto-generated method stub
-
+		if (connection != null) {
+			try {
+				PreparedStatement statement = connection.prepareStatement("delete from ? where ? = ?");
+				statement.setString(1, table);
+				statement.setString(2, field);
+				statement.setString(3, value);
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+			else {
+				System.err.println("establish connection first");
+			}
 	}
 
 	public void deleteById(String table, String id) {
-		// TODO Auto-generated method stub
+		if (connection != null) {
+			try {
+				PreparedStatement statement = connection.prepareStatement("delete from ? where id = ?");
+				statement.setString(1, table);
+				statement.setString(2, id);
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+			else {
+				System.err.println("establish connection first");
+			}
 
 	}
 
