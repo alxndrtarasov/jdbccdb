@@ -5,10 +5,12 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class PGBDWorker implements BDWorker {
 
-	Connection connection;
+	private Connection connection;
+	private static final String defName = "obj";
 
 	public Connection connect(String dbName, String login, String password) {
 		try {
@@ -32,12 +34,15 @@ public class PGBDWorker implements BDWorker {
 	public void createDatabase(String name) {
 		if (connection != null) {
 			try {
-				PreparedStatement statement = connection.prepareStatement("create database " + name + ";");
-				statement.executeUpdate();
+				Statement statement = connection.createStatement();
+				statement.execute("create database " + name);
+				statement.execute("create table " + defName
+						+ "(id integer primary key check(id>0), obj_name text, data date, description text check(description = 'Fruit' or description = 'Vegetable'));");
 			} catch (SQLException e) {
-				System.err.println("establish connection first");
 				e.printStackTrace();
 			}
+		} else {
+			System.err.println("establish connection first");
 		}
 
 	}
@@ -48,9 +53,10 @@ public class PGBDWorker implements BDWorker {
 				PreparedStatement statement = connection.prepareStatement("drop database " + name + ";");
 				statement.executeUpdate();
 			} catch (SQLException e) {
-				System.err.println("establish connection first");
 				e.printStackTrace();
 			}
+		} else {
+			System.err.println("establish connection first");
 		}
 
 	}
@@ -58,12 +64,13 @@ public class PGBDWorker implements BDWorker {
 	public void cleanTable(String name) {
 		if (connection != null) {
 			try {
-				PreparedStatement statement = connection.prepareStatement("delete table " + name + ";");
-				statement.executeUpdate();
+				Statement statement = connection.createStatement();
+				statement.executeUpdate("delete from " + name + ";");
 			} catch (SQLException e) {
-				System.err.println("establish connection first");
 				e.printStackTrace();
 			}
+		} else {
+			System.err.println("establish connection first");
 		}
 	}
 
