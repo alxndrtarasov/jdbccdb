@@ -24,7 +24,7 @@ public class ContentTable extends JPanel {
 
 	public ContentTable(ResultSet objs) {
 		try {
-			Object[] columnTitles = { "id", "name", "date", "description" };
+			Object[] columnTitles = { "id", "obj_name", "data", "description" };
 			System.out.println(objs);
 			SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy");
 			int rsSize = 0;
@@ -38,7 +38,7 @@ public class ContentTable extends JPanel {
 			int i = 0;
 			while (objs.next()) {
 				rowData[i][0] = objs.getObject("id");
-				rowData[i][1] = objs.getObject("name");
+				rowData[i][1] = objs.getObject("obj_name");
 				rowData[i][2] = df.format(objs.getDate("data"));
 				rowData[i][3] = objs.getObject("description");
 				i++;

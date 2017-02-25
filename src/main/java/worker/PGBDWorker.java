@@ -20,7 +20,6 @@ public class PGBDWorker implements BDWorker {
 		try {
 			Class.forName("org.postgresql.Driver");
 		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		String url = "jdbc:postgresql://localhost:5433/" + dbName.toLowerCase();
@@ -41,6 +40,8 @@ public class PGBDWorker implements BDWorker {
 			try {
 				Statement statement = connection.createStatement();
 				statement.execute("create database " + name);
+				Connection newDbConn = connect(name, login, password);
+				statement = newDbConn.createStatement();
 				statement.execute("create table " + defName
 						+ "(id integer primary key check(id>0), obj_name text, data date, description text check(description = 'Fruit' or description = 'Vegetable'));");
 			} catch (SQLException e) {
@@ -114,10 +115,10 @@ public class PGBDWorker implements BDWorker {
 	public ResultSet find(String table, String field, String value) {
 		if (connection != null) {
 			try {
-				PreparedStatement statement = connection.prepareStatement("select * from ? where ? = ?");
-				statement.setString(1, table);
-				statement.setString(2, field);
-				statement.setString(3, value);
+				PreparedStatement statement = connection.prepareStatement(
+						"select * from " + table + " where " + field + " = ?", ResultSet.TYPE_SCROLL_SENSITIVE,
+						ResultSet.CONCUR_UPDATABLE);
+				statement.setString(1, value);
 				return statement.executeQuery();
 
 			} catch (SQLException e) {
@@ -133,11 +134,9 @@ public class PGBDWorker implements BDWorker {
 	public void deleteByFieldValue(String table, String field, String value) {
 		if (connection != null) {
 			try {
-				PreparedStatement statement = connection.prepareStatement("delete from ? where ? = ?");
-				statement.setString(1, table);
-				statement.setString(2, field);
-				statement.setString(3, value);
-
+				PreparedStatement statement = connection
+						.prepareStatement("delete from " + table + " where " + field + " = ?");
+				statement.setString(1, value);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -150,9 +149,8 @@ public class PGBDWorker implements BDWorker {
 	public void deleteById(String table, String id) {
 		if (connection != null) {
 			try {
-				PreparedStatement statement = connection.prepareStatement("delete from ? where id = ?");
-				statement.setString(1, table);
-				statement.setString(2, id);
+				PreparedStatement statement = connection.prepareStatement("delete from " + table + " where id = ?");
+				statement.setString(1, id);
 
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -167,10 +165,10 @@ public class PGBDWorker implements BDWorker {
 	public ResultSet getAllObjects() {
 		if (connection != null) {
 			try {
-				Statement statement = connection.createStatement();
+				Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+						ResultSet.CONCUR_UPDATABLE);
 				return statement.executeQuery("select * from " + defName + ";");
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} else {
@@ -183,12 +181,11 @@ public class PGBDWorker implements BDWorker {
 	public ResultSet find(String table, int id) {
 		if (connection != null) {
 			try {
-				PreparedStatement statement = connection
-						.prepareStatement("select * from " + defName + " where id = ?;");
+				PreparedStatement statement = connection.prepareStatement("select * from " + defName + " where id = ?;",
+						ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 				statement.setLong(1, id);
 				return statement.executeQuery();
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} else {

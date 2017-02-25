@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -30,8 +31,8 @@ public class ChangeForm extends JFrame {
 		setLayout(new GridLayout(6, 1));
 
 		JLabel idLabel = new JLabel("Id:");
-		JLabel nameLabel = new JLabel("Field:");
-		JLabel dateLabel = new JLabel("Date:");
+		JLabel nameLabel = new JLabel("Obj_name:");
+		JLabel dateLabel = new JLabel("Data:");
 		JLabel descriptionLabel = new JLabel("Description:");
 
 		JTextField id = new JTextField();
@@ -78,7 +79,7 @@ public class ChangeForm extends JFrame {
 					name.setEditable(true);
 					date.setEnabled(true);
 					description.setEnabled(true);
-					name.setText(currentObj.getString("name"));
+					name.setText(currentObj.getString("obj_name"));
 					date.setDate(currentObj.getDate("data"));
 					description.setSelectedItem(currentObj.getString("description"));
 				} catch (NumberFormatException e1) {
@@ -96,8 +97,9 @@ public class ChangeForm extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				worker.update(PGBDWorker.defName,
-						name.getText() + "," + date.getDate() + "," + description.getSelectedItem(), id.getText());
+				SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy");
+				worker.update(PGBDWorker.defName, "'" + name.getText() + "'" + "," + "'" + df.format(date.getDate())
+						+ "'" + "," + "'" + description.getSelectedItem() + "'", id.getText());
 			}
 		});
 

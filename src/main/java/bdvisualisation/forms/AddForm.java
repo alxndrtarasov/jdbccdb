@@ -46,13 +46,13 @@ public class AddForm extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (Pattern.matches("[A-Za-z]{0,99}", name.getText())
-						&& Pattern.matches("[0-9]{0,99}", name.getText())) {
+						&& Pattern.matches("[0-9]{0,99}", idField.getText())) {
 					SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy");
 					try {
 						int id = Integer.decode(idField.getText());
 						worker.insert(PGBDWorker.defName, id,
-								name.getText() + "," + "'" + df.parse(df.format(date.getDate())) + "'" + ","
-										+ description.getSelectedItem().toString());
+								"'" + name.getText() + "'" + "," + "'" + df.parse(df.format(date.getDate())) + "'" + ","
+										+ "'" + description.getSelectedItem().toString() + "'");
 					} catch (ParseException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();

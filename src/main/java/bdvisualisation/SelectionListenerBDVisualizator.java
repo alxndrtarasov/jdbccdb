@@ -32,7 +32,7 @@ public class SelectionListenerBDVisualizator implements BDVisualizator {
 	@Override
 	public JScrollPane getTable() {
 		final JTable table;
-		Object[] columnTitles = { "id", "name", "date", "description" };
+		Object[] columnTitles = { "id", "obj_name", "data", "description" };
 		Object[][] rowData = null;
 		try {
 			ResultSet objs = worker.getAllObjects();
@@ -49,7 +49,7 @@ public class SelectionListenerBDVisualizator implements BDVisualizator {
 			int i = 0;
 			while (objs.next()) {
 				rowData[i][0] = objs.getObject("id");
-				rowData[i][1] = objs.getObject("name");
+				rowData[i][1] = objs.getObject("obj_name");
 				rowData[i][2] = df.format(objs.getDate("data"));
 				rowData[i][3] = objs.getObject("description");
 				i++;

@@ -41,9 +41,14 @@ public class MainMenu extends JFrame {
 		defStart.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				worker.connect(bdName.getText(), PGBDWorker.login, PGBDWorker.password);
-				JFrame baseFrame = openner.open();
-				baseFrame.setVisible(true);
+				try {
+					worker.connect(bdName.getText(), PGBDWorker.login, PGBDWorker.password);
+					JFrame baseFrame = openner.open();
+					baseFrame.setVisible(true);
+				} catch (Exception ex) {
+					System.err.println("no such db yet. Create it first");
+					worker.connect(PGBDWorker.defDbName, PGBDWorker.login, PGBDWorker.password);
+				}
 			}
 		});
 
@@ -52,6 +57,7 @@ public class MainMenu extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				worker.connect(PGBDWorker.defDbName, PGBDWorker.login, PGBDWorker.password);
 				worker.createDatabase(bdName.getText());
 				worker.connect(bdName.getText(), PGBDWorker.login, PGBDWorker.password);
 				JFrame baseFrame = openner.open();
@@ -64,6 +70,7 @@ public class MainMenu extends JFrame {
 		delete.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				worker.connect(PGBDWorker.defDbName, PGBDWorker.login, PGBDWorker.password);
 				worker.deleteDatabase(bdName.getText());
 			}
 		});

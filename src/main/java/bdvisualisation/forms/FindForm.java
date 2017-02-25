@@ -25,6 +25,7 @@ public class FindForm extends JFrame {
 	public FindForm(BDWorker worker) {
 		setLayout(new GridLayout(3, 2));
 		JFrame findResult = new JFrame("Results of search");
+
 		JLabel inputLabel = new JLabel("Input:");
 		JLabel fieldLabel = new JLabel("Field:");
 
@@ -33,8 +34,8 @@ public class FindForm extends JFrame {
 		JComboBox<String> fieldChooser = new JComboBox<>();
 
 		fieldChooser.addItem("id");
-		fieldChooser.addItem("name");
-		fieldChooser.addItem("date");
+		fieldChooser.addItem("obj_name");
+		fieldChooser.addItem("data");
 		fieldChooser.addItem("description");
 
 		JTextField input = new JTextField();
@@ -45,11 +46,10 @@ public class FindForm extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (fieldChooser.getSelectedItem().equals("id")) {
-					ResultSet objs = null;
 					try {
 						ResultSet foundObj = worker.find(PGBDWorker.defName, Integer.parseInt(input.getText()));
 						if (foundObj.next()) {
-							findResult.add(new ContentTable(objs));
+							findResult.add(new ContentTable(foundObj));
 							findResult.setVisible(true);
 						} else {
 							input.setText("Not found");
@@ -59,9 +59,14 @@ public class FindForm extends JFrame {
 					}
 				} else {
 					try {
-						findResult.add(new ContentTable(worker.find(PGBDWorker.defName,
-								(String) fieldChooser.getSelectedItem(), input.getText())));
-						findResult.setVisible(true);
+						ResultSet foundObjs = worker.find(PGBDWorker.defName, (String) fieldChooser.getSelectedItem(),
+								input.getText());
+						if (foundObjs.next()) {
+							findResult.add(new ContentTable(foundObjs));
+							findResult.setVisible(true);
+						} else {
+							input.setText("Not found");
+						}
 					} catch (Exception e2) {
 						input.setText("Not found");
 					}
