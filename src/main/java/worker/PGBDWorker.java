@@ -137,6 +137,7 @@ public class PGBDWorker implements BDWorker {
 				PreparedStatement statement = connection
 						.prepareStatement("delete from " + table + " where " + field + " = ?");
 				statement.setString(1, value);
+				statement.execute();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -150,8 +151,8 @@ public class PGBDWorker implements BDWorker {
 		if (connection != null) {
 			try {
 				PreparedStatement statement = connection.prepareStatement("delete from " + table + " where id = ?");
-				statement.setString(1, id);
-
+				statement.setLong(1, Long.parseLong(id));
+				statement.execute();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
