@@ -14,6 +14,7 @@ import bdvisualisation.forms.AddForm;
 import bdvisualisation.forms.ChangeForm;
 import bdvisualisation.forms.DelForm;
 import bdvisualisation.forms.FindForm;
+import worker.PGBDWorker;
 
 public class SimpleBDOpenner implements BDOpenner {
 
@@ -84,6 +85,20 @@ public class SimpleBDOpenner implements BDOpenner {
 			}
 		});
 		buttons.add(change);
+
+		JButton clean = new JButton("Clean");
+		clean.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				visualizator.getWorker().cleanTable(PGBDWorker.defName);
+				result.remove(table);
+				table = visualizator.getTable();
+				result.add(table, BorderLayout.CENTER);
+				result.revalidate();
+				result.repaint();
+			}
+		});
+		buttons.add(clean);
 
 		result.add(buttons, BorderLayout.SOUTH);
 		result.setSize(400, 700);

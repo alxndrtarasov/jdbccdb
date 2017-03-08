@@ -2,6 +2,7 @@ package worker;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * Created by alta0816 on 20.02.2017.
@@ -11,7 +12,7 @@ public interface BDWorker {
 
 	public void createDatabase(String name);
 
-	public void deleteDatabase(String name);
+	public void deleteDatabase(String name) throws SQLException;
 
 	public void cleanTable(String name);
 

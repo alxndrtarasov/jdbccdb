@@ -1,11 +1,10 @@
 package worker;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class PGBDWorker implements BDWorker {
 
@@ -13,7 +12,7 @@ public class PGBDWorker implements BDWorker {
 	public static final String defDbName = "postgres";
 	public static final String login = "postgres";
 	public static final String password = "1337";
-	public static final String defName = "obj";
+	public static String defName = "obj";
 
 	@Override
 	public Connection connect(String dbName, String login, String password) {
@@ -38,12 +37,10 @@ public class PGBDWorker implements BDWorker {
 	public void createDatabase(String name) {
 		if (connection != null) {
 			try {
-				Statement statement = connection.createStatement();
-				statement.execute("create database " + name);
-				Connection newDbConn = connect(name, login, password);
-				statement = newDbConn.createStatement();
-				statement.execute("create table " + defName
-						+ "(id integer primary key check(id>0), obj_name text, data date, description text check(description = 'Fruit' or description = 'Vegetable'));");
+				CallableStatement statement = connection.prepareCall("{call create_table(?)}");
+				statement.setString(1, name);
+				statement.execute();
+				defName = name;
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -53,15 +50,16 @@ public class PGBDWorker implements BDWorker {
 
 	}
 
+	public void setDefName(String defName) {
+		PGBDWorker.defName = defName;
+	}
+
 	@Override
-	public void deleteDatabase(String name) {
+	public void deleteDatabase(String name) throws SQLException {
 		if (connection != null) {
-			try {
-				PreparedStatement statement = connection.prepareStatement("drop database " + name + ";");
-				statement.executeUpdate();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			CallableStatement statement = connection.prepareCall("{call delete_table(?)}");
+			statement.setString(1, name);
+			statement.execute();
 		} else {
 			System.err.println("establish connection first");
 		}
@@ -72,8 +70,9 @@ public class PGBDWorker implements BDWorker {
 	public void cleanTable(String name) {
 		if (connection != null) {
 			try {
-				Statement statement = connection.createStatement();
-				statement.executeUpdate("delete from " + name + ";");
+				CallableStatement statement = connection.prepareCall("{call clean_table(?)}");
+				statement.setString(1, name);
+				statement.execute();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -86,8 +85,11 @@ public class PGBDWorker implements BDWorker {
 	public void insert(String table, int id, String object) {
 		if (connection != null) {
 			try {
-				Statement statement = connection.createStatement();
-				statement.executeUpdate("insert into " + table + " values(" + id + "," + object + ");");
+				CallableStatement statement = connection.prepareCall("{call insert_into(?,?,?)}");
+				statement.setString(1, table);
+				statement.setInt(2, id);
+				statement.setString(3, object);
+				statement.execute();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -100,9 +102,11 @@ public class PGBDWorker implements BDWorker {
 	public void update(String table, String object, String id) {
 		if (connection != null) {
 			try {
-				Statement statement = connection.createStatement();
-				statement.execute("delete from " + table + " where id = " + id + ";");
-				statement.executeUpdate("insert into " + table + " values(" + id + "," + object + ");");
+				CallableStatement statement = connection.prepareCall("{call upd(?,?,?)}");
+				statement.setString(1, table);
+				statement.setString(2, object);
+				statement.setString(3, id);
+				statement.execute();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -115,10 +119,12 @@ public class PGBDWorker implements BDWorker {
 	public ResultSet find(String table, String field, String value) {
 		if (connection != null) {
 			try {
-				PreparedStatement statement = connection.prepareStatement(
-						"select * from " + table + " where " + field + " = ?", ResultSet.TYPE_SCROLL_SENSITIVE,
-						ResultSet.CONCUR_UPDATABLE);
-				statement.setString(1, value);
+
+				CallableStatement statement = connection.prepareCall("{call find(?,?,?)}",
+						ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+				statement.setString(1, table);
+				statement.setString(2, field);
+				statement.setString(3, value);
 				return statement.executeQuery();
 
 			} catch (SQLException e) {
@@ -134,9 +140,10 @@ public class PGBDWorker implements BDWorker {
 	public void deleteByFieldValue(String table, String field, String value) {
 		if (connection != null) {
 			try {
-				PreparedStatement statement = connection
-						.prepareStatement("delete from " + table + " where " + field + " = ?");
-				statement.setString(1, value);
+				CallableStatement statement = connection.prepareCall("{call del(?,?,?)}");
+				statement.setString(1, table);
+				statement.setString(2, field);
+				statement.setString(3, value);
 				statement.execute();
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -150,8 +157,9 @@ public class PGBDWorker implements BDWorker {
 	public void deleteById(String table, String id) {
 		if (connection != null) {
 			try {
-				PreparedStatement statement = connection.prepareStatement("delete from " + table + " where id = ?");
-				statement.setLong(1, Long.parseLong(id));
+				CallableStatement statement = connection.prepareCall("{call del_by_id(?,?)}");
+				statement.setString(1, table);
+				statement.setString(2, id);
 				statement.execute();
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -166,9 +174,10 @@ public class PGBDWorker implements BDWorker {
 	public ResultSet getAllObjects() {
 		if (connection != null) {
 			try {
-				Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
-						ResultSet.CONCUR_UPDATABLE);
-				return statement.executeQuery("select * from " + defName + ";");
+				CallableStatement statement = connection.prepareCall("{call all_objs(?)}",
+						ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+				statement.setString(1, defName);
+				return statement.executeQuery();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -182,9 +191,10 @@ public class PGBDWorker implements BDWorker {
 	public ResultSet find(String table, int id) {
 		if (connection != null) {
 			try {
-				PreparedStatement statement = connection.prepareStatement("select * from " + defName + " where id = ?;",
+				CallableStatement statement = connection.prepareCall("{call find_by_id(?,?)}",
 						ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-				statement.setLong(1, id);
+				statement.setString(1, table);
+				statement.setInt(2, id);
 				return statement.executeQuery();
 			} catch (SQLException e) {
 				e.printStackTrace();

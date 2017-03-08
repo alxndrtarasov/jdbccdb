@@ -42,7 +42,8 @@ public class MainMenu extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					worker.connect(bdName.getText(), PGBDWorker.login, PGBDWorker.password);
+					worker.connect(PGBDWorker.defDbName, PGBDWorker.login, PGBDWorker.password);
+					((PGBDWorker) worker).setDefName(bdName.getText());
 					JFrame baseFrame = openner.open();
 					baseFrame.setVisible(true);
 				} catch (Exception ex) {
@@ -59,7 +60,7 @@ public class MainMenu extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				worker.connect(PGBDWorker.defDbName, PGBDWorker.login, PGBDWorker.password);
 				worker.createDatabase(bdName.getText());
-				worker.connect(bdName.getText(), PGBDWorker.login, PGBDWorker.password);
+				((PGBDWorker) worker).setDefName(bdName.getText());
 				JFrame baseFrame = openner.open();
 				baseFrame.setVisible(true);
 			}
@@ -71,7 +72,11 @@ public class MainMenu extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				worker.connect(PGBDWorker.defDbName, PGBDWorker.login, PGBDWorker.password);
-				worker.deleteDatabase(bdName.getText());
+				try {
+					worker.deleteDatabase(bdName.getText());
+				} catch (Exception exe) {
+					bdName.setText("a ee i net");
+				}
 			}
 		});
 		add(label);
